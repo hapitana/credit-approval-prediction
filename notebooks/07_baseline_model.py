@@ -1,4 +1,7 @@
-import pandas as pd
+from pathlib import Path
+
+import numpy as np
+import polars as pl
 
 from sklearn.model_selection import train_test_split
 from sklearn.compose import ColumnTransformer
@@ -15,14 +18,20 @@ from sklearn.metrics import (
 
 
 # 1. Load the data
-file_path = "../data/raw/crx.data"
+file_path = (
+    Path(_file_).resolve().parent.parent
+    / "data"
+    / "raw"
+    / "crx.data"
+)
+
 columns = [f"A{i}" for i in range(1, 17)]
 
-df = pd.read_csv(
+df = pl.read_csv(
     file_path,
-    header=None,
-    names=columns,
-    na_values="?",
+    has_header=False,
+    new_columns=columns,
+    null_values="?",
 )
 
 # 2. Define features and target
@@ -32,21 +41,57 @@ categorical_features = [
     if col not in numeric_features
 ]
 
-# Ensure numerical features are converted to numeric values
-for col in numeric_features:
-    df[col] = pd.to_numeric(df[col], errors="coerce")
+# Convert numerical features to numeric values.
+# Invalid values become nulls and will be imputed later.
+df = df.with_columns([
+    pl.col(col).cast(pl.Float64, strict=False)
+    for col in numeric_features
+])
 
+# Keep only valid target labels:
 # + = approved (1), - = rejected (0)
-df = df[df["A16"].isin(["+", "-"])].copy()
-X = df[columns[:15]]
-y = (df["A16"] == "+").astype(int)
+df = df.filter(pl.col("A16").is_in(["+", "-"]))
+
+# Separate features and target.
+feature_columns = columns[:15]
+
+X_df = df.select(feature_columns)
+
+y = (
+    df.select(
+        (pl.col("A16") == "+").cast(pl.Int64)
+    )
+    .to_series()
+    .to_numpy()
+)
+
+# Convert the Polars feature table to a NumPy array for scikit-learn.
+# The column order is preserved.
+X = X_df.to_numpy()
+
+# Map feature names to their column positions.
+numeric_indices = [
+    feature_columns.index(col)
+    for col in numeric_features
+]
+
+categorical_indices = [
+    feature_columns.index(col)
+    for col in categorical_features
+]
 
 print("Number of observations:", len(df))
+
 print("\nTarget distribution:")
-print(y.value_counts().sort_index().rename(index={
-    0: "Rejected (-)",
-    1: "Approved (+)",
-}))
+print(
+    pl.DataFrame({
+        "Target": ["Rejected (-)", "Approved (+)"],
+        "Count": [
+            int(np.sum(y == 0)),
+            int(np.sum(y == 1)),
+        ],
+    })
+)
 
 # 3. Split the data before preprocessing
 X_train, X_test, y_train, y_test = train_test_split(
@@ -71,8 +116,8 @@ categorical_pipeline = Pipeline([
 
 # 6. Combine preprocessing steps
 preprocessor = ColumnTransformer([
-    ("numeric", numeric_pipeline, numeric_features),
-    ("categorical", categorical_pipeline, categorical_features),
+    ("numeric", numeric_pipeline, numeric_indices),
+    ("categorical", categorical_pipeline, categorical_indices),
 ])
 
 # 7. Build the baseline model pipeline
