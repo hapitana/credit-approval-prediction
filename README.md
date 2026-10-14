@@ -1,149 +1,265 @@
-# Credit Approval Prediction — UCI Credit Approval Dataset
+# Credit Approval Prediction
+
+
+**An end-to-end data analysis and machine learning project exploring
+historical credit approval decisions using Python.**
+
 
 ## Project Overview
 
-This project explores whether historical credit application outcomes can be predicted from the anonymized attributes in the **UCI Credit Approval dataset**. It is an applied machine-learning project focused on data preparation, exploratory data analysis (EDA), model evaluation, and responsible interpretation.
 
-**Important:** the target represents whether an application was historically approved or rejected. This is **not** a model of loan default, repayment behavior, or credit risk after a loan has been issued.
+Financial institutions need consistent processes for evaluating credit
+applications. Historical application data can help analysts understand
+patterns associated with previous approval decisions and evaluate
+classification models.
 
-## Research Questions
 
-- How do the dataset's anonymized attributes relate to historical approval outcomes?
-- How well can baseline classification models distinguish approved from rejected applications?
-- Which features are most influential to model predictions, and what checks are needed before interpreting them?
+This project explores the UCI Credit Approval dataset to investigate
+application characteristics, compare machine learning models, and
+identify features strongly associated with historical approval outcomes.
+
+
+The project demonstrates a structured analytical workflow, from
+exploratory data analysis and data quality checks to model evaluation
+and statistical hypothesis testing.
+
+
+> **Important:** This project predicts historical credit approval
+> decisions. It does not directly predict loan default or repayment
+> behavior and is not intended for direct use in real lending decisions.
+
+
+## Business Objectives
+
+
+The project addresses five key questions:
+
+
+1. What patterns can be identified in historical credit application data?
+2. Which features are associated with approval and rejection decisions?
+3. How effectively can machine learning models classify applications?
+4. Which features contribute most to predictive performance?
+5. What unusual values or strong feature relationships require further
+   investigation?
+
 
 ## Dataset
 
-- **Source:** UCI Machine Learning Repository — Credit Approval dataset.
-- **Observations:** 690 applications.
-- **Input features:** 15 anonymized attributes, named `A1`–`A15`.
-- **Target:** `A16`, where `+` means approved and `-` means rejected.
-- **Target distribution:** 307 approved (44.49%) and 383 rejected (55.51%).
 
-The attributes are anonymized. This README therefore does not assign business meanings such as income, debt, or employment to individual columns.
+**Source:** UCI Machine Learning Repository — Credit Approval Dataset
 
-### Data location
 
-Place the raw dataset at:
+Dataset: https://archive.ics.uci.edu/dataset/27/credit+approval
 
-```text
-data/raw/crx.data
-```
 
-The notebook workflow described in this project assumes the data file is available at that location relative to the project root. If your notebook uses a different relative path, update the read path accordingly.
+| Property | Description |
+|---|---|
+| Observations | 690 applications |
+| Input features | 15 anonymized features, A1–A15 |
+| Target variable | A16 |
+| Target classes | `+` (approved), `-` (rejected) |
+| Data types | Numeric and categorical |
+
+
+### Target Distribution
+
+
+| Historical decision | Applications | Percentage |
+|---|---:|---:|
+| Approved (`+`) | 307 | 44.5% |
+| Rejected (`-`) | 383 | 55.5% |
+| **Total** | **690** | **100%** |
+
+
+The input features are anonymized. Their real-world meanings should not
+be inferred from the feature labels alone.
+
+
+## Tools and Technologies
+
+
+- **Python** — Data analysis and model development
+- **pandas and NumPy** — Data manipulation
+- **Matplotlib and Seaborn** — Data visualization
+- **scikit-learn** — Classification models and evaluation
+- **SciPy** — Statistical hypothesis testing
+- **SQL** — Data exploration and querying
+- **Git and GitHub** — Version control and project documentation
+
+
+## Analytical Workflow
+
+
+The project is organized into 12 Python scripts.
+
+
+| Stage | Script | Purpose |
+|---|---|---|
+| 1 | `01_first_exploration.py` | Inspect dataset structure and data quality |
+| 2 | `02_sql_exploration.py` | Explore data using SQL |
+| 3 | `03_visual_exploration.py` | Visualize feature distributions and patterns |
+| 4 | `04_feature_analysis.py` | Analyze features and target relationships |
+| 5 | `05_outlier_analysis.py` | Investigate potential outliers |
+| 6 | `06_inspect_extreme_values.py` | Examine extreme values, especially A15 |
+| 7 | `07_baseline_model.py` | Establish a Logistic Regression baseline |
+| 8 | `08_model_validation.py` | Evaluate model performance |
+| 9 | `09_compare_models.py` | Compare Logistic Regression and Random Forest |
+| 10 | `10_feature_importance.py` | Evaluate permutation feature importance |
+| 11 | `11_analyze_A9.py` | Investigate feature A9 |
+| 12 | `12_test_A9_association.py` | Statistically test the association between A9 and approval |
+
+
+Detailed methodology and findings are documented in
+[`notebooks/README.md`](notebooks/README.md).
+
+
+## Machine Learning Models
+
+
+Two classification algorithms were evaluated:
+
+
+- **Logistic Regression** — Baseline classification model
+- **Random Forest** — Nonlinear, tree-based classification model
+
+
+The models were evaluated using five-fold cross-validation.
+
+
+### Cross-Validation Results
+
+
+| Metric | Logistic Regression | Random Forest |
+|---|---:|---:|
+| Accuracy | 0.8609 ± 0.0365 | 0.8739 ± 0.0417 |
+| Precision | 0.8302 ± 0.0524 | 0.8574 ± 0.0592 |
+| Recall | 0.8698 ± 0.0272 | 0.8665 ± 0.0529 |
+| F1-score | 0.8486 ± 0.0340 | 0.8601 ± 0.0426 |
+| ROC-AUC | 0.9344 ± 0.0196 | 0.9365 ± 0.0258 |
+
+
+Random Forest achieved somewhat higher mean accuracy, precision,
+F1-score, and ROC-AUC in these experiments. However, the difference
+in mean ROC-AUC was small.
+
+
+Further validation is needed before concluding that either model is
+more suitable for practical deployment.
+
+
+*Note: Precision and recall depend on which target class is defined as
+positive. Consult the modeling scripts for the exact class convention.*
+
+
+## Key Findings
+
+
+### 1. Strong Predictive Performance
+
+
+Both models achieved strong cross-validation results on this dataset.
+These results demonstrate that the historical decisions contain
+patterns that the evaluated models can learn.
+
+
+They do not guarantee similar performance on future applications.
+
+
+### 2. Extreme Values in A15
+
+
+Feature A15 contains extreme values and substantially different
+distributions across the approval classes.
+
+
+The maximum observed value among approved applications was 100,000,
+compared with 5,552 among rejected applications.
+
+
+These observations warrant investigation. They should not automatically
+be removed because the available data do not establish whether they
+are errors or valid extreme values.
+
+
+### 3. Feature A9 Has a Strong Association with Approval
+
+
+Feature A9 showed a strong association with the historical target.
+
+
+| A9 category | Approved | Rejected | Approval rate |
+|---|---:|---:|---:|
+| `f` | 23 | 306 | 6.99% |
+| `t` | 284 | 77 | 78.67% |
+
+
+The chi-square test produced a statistic of 355.2038, with 1 degree
+of freedom and a p-value of approximately 3.12 × 10⁻⁷⁹.
+Cramér's V was 0.7175.
+
+
+These results indicate a strong statistical association, not causation.
+The meaning and availability of A9 should be investigated before
+drawing business conclusions or considering its use in a decision system.
+
+
+### 4. Feature Importance Requires Careful Interpretation
+
+
+Permutation importance identified A9 as the most influential feature
+under the evaluation procedure used.
+
+
+This finding warrants additional investigation into feature meaning,
+potential information leakage, and whether the feature would be
+available at the appropriate point in an actual application process.
+
+
+## Limitations and Responsible Use
+
+
+- **Anonymized features:** The real-world meanings of A1–A15 are not
+  established by the feature labels.
+- **Small dataset:** The dataset contains only 690 observations.
+- **Historical target:** Approval decisions are not equivalent to
+  borrower repayment or default outcomes.
+- **Potential leakage:** Strong feature-target relationships require
+  investigation of feature availability and the evaluation pipeline.
+- **Generalization:** Cross-validation and holdout metrics do not
+  guarantee performance on future data.
+- **Fairness and compliance:** The analysis does not establish that
+  the features or models are fair, legally compliant, or appropriate
+  for lending decisions.
+
+
+This project is intended for educational and portfolio demonstration
+purposes. It should not be used directly to approve or reject real
+credit applications.
+
 
 ## Repository Structure
 
+
 ```text
-01_credit_risk_uci/
+credit-approval-prediction/
 ├── data/
 │   ├── raw/
-│   │   └── crx.data
 │   └── processed/
 ├── notebooks/
-├── sql/
-├── src/
+│   ├── README.md
+│   ├── 01_first_exploration.py
+│   ├── 02_sql_exploration.py
+│   ├── 03_visual_exploration.py
+│   ├── 04_feature_analysis.py
+│   ├── 05_outlier_analysis.py
+│   ├── 06_inspect_extreme_values.py
+│   ├── 07_baseline_model.py
+│   ├── 08_model_validation.py
+│   ├── 09_compare_models.py
+│   ├── 10_feature_importance.py
+│   ├── 11_analyze_A9.py
+│   └── 12_test_A9_association.py
 ├── outputs/
+├── src/
+├── sql/
 └── README.md
-```
-
-- `data/raw/`: original dataset; keep raw data unchanged.
-- `data/processed/`: cleaned or transformed datasets, if saved.
-- `notebooks/`: EDA, experiments, and evaluation.
-- `sql/`: optional SQL queries for data inspection and aggregation.
-- `src/`: reusable preprocessing and modeling code.
-- `outputs/`: figures, tables, and other project artifacts.
-
-## Workflow
-
-1. Load the raw data and interpret `?` as a missing value.
-2. Check dimensions, target distribution, missingness, and feature types.
-3. Explore numeric features and compare their distributions across target classes.
-4. Build preprocessing pipelines:
-   - Numeric features: `A2`, `A3`, `A8`, `A11`, `A14`, `A15`.
-   - Categorical features: the remaining attributes among `A1`–`A15`.
-   - Numeric missing values: median imputation.
-   - Categorical missing values: most-frequent imputation.
-   - Numeric scaling: `StandardScaler`.
-   - Categorical encoding: `OneHotEncoder(handle_unknown="ignore")`.
-5. Train and evaluate a majority-class baseline, Logistic Regression, and Random Forest.
-6. Use stratified five-fold cross-validation for model comparison.
-7. Inspect Random Forest permutation importance and investigate whether highly influential features may reflect the historical decision process.
-
-## Model Evaluation
-
-The following results are from **stratified five-fold cross-validation**. Values are mean ± standard deviation across folds.
-
-| Model | Accuracy | Precision | Recall | F1 | ROC-AUC |
-|---|---:|---:|---:|---:|---:|
-| Majority-class baseline | 0.5551 ± 0.0035 | 0.0000 ± 0.0000 | 0.0000 ± 0.0000 | 0.0000 ± 0.0000 | 0.5000 ± 0.0000 |
-| Logistic Regression | 0.8609 ± 0.0365 | 0.8302 ± 0.0524 | 0.8698 ± 0.0272 | 0.8486 ± 0.0340 | 0.9344 ± 0.0196 |
-| Random Forest | 0.8739 ± 0.0417 | 0.8574 ± 0.0592 | 0.8665 ± 0.0529 | 0.8601 ± 0.0426 | 0.9365 ± 0.0258 |
-
-Precision, recall, and F1 are reported for the **approved (`+`) class**, consistent with the model evaluation used in this project.
-
-### Interpretation
-
-- Both trained models outperform the majority-class baseline on the reported cross-validation metrics.
-- Random Forest has slightly higher mean accuracy, precision, F1, and ROC-AUC than Logistic Regression in these runs.
-- Logistic Regression has slightly higher mean recall for the approved class.
-- The differences are modest relative to the fold-to-fold variation; these results do not establish that one model is definitively superior.
-- The Random Forest achieved a holdout ROC-AUC of **0.9683** on one 80/20 train-test split. This is a single-split result and should not be treated as a guarantee of performance on new data.
-
-## Key Finding: Feature `A9` Needs Investigation
-
-Random Forest permutation importance on the holdout set identified `A9` as the dominant feature:
-
-| Feature | Mean ROC-AUC decrease | Standard deviation |
-|---|---:|---:|
-| `A9` | 0.274360 | 0.036090 |
-| `A14` | 0.006061 | 0.002463 |
-| `A15` | 0.005649 | 0.003003 |
-| `A10` | 0.004492 | 0.005731 |
-| `A5` | 0.003130 | 0.001600 |
-
-The descriptive approval rates by `A9` were:
-
-| `A9` value | Approved | Rejected | Total | Approval rate |
-|---|---:|---:|---:|---:|
-| `f` | 23 | 306 | 329 | 6.99% |
-| `t` | 284 | 77 | 361 | 78.67% |
-
-A chi-square test of independence reported a statistic of **355.2038** with **1 degree of freedom**, **p ≈ 3.12 × 10⁻⁷⁹**, and **Cramér's V = 0.7175**. This indicates a strong association between `A9` and the historical target in this dataset.
-
-These results are **associational, not causal**. Since the feature names are anonymized, the substantive meaning of `A9` cannot be inferred from the column label alone. Its unusually high predictive influence could reflect a legitimate signal, a feature closely related to the historical decision rule, or possible target leakage. Its provenance and availability at the time an application would be scored must be investigated before any practical interpretation.
-
-## Limitations
-
-- **Anonymized features:** the business meaning of `A1`–`A15` is not established in this project.
-- **Historical target:** the model predicts historical approval decisions, not repayment or default.
-- **Potential leakage or decision-rule replication:** the influence of `A9` requires investigation before drawing operational conclusions.
-- **Validation scope:** the reported results use cross-validation and a single holdout split; there is no external, temporal, or prospective validation.
-- **Fairness not assessed:** the analysis does not establish that the data or models are fair across demographic or other relevant groups.
-- **Limited model set:** only a majority-class baseline, Logistic Regression, and Random Forest have been compared.
-- **No deployment assessment:** calibration, decision thresholds, business costs, monitoring, and governance have not been fully evaluated.
-
-## Next Steps
-
-1. Investigate the dataset documentation and the provenance and timing of `A9`.
-2. Confirm that every input feature would genuinely be available at the intended prediction time.
-3. Evaluate threshold-dependent trade-offs and the costs of false approvals and false rejections.
-4. Assess probability calibration and robustness across alternative splits or resampling strategies.
-5. Where valid group information is available, assess subgroup performance and fairness carefully.
-6. Extend the portfolio toward research on MSME access to finance and FinTech, with a clear distinction between application approval and post-loan outcomes.
-
-## Tools
-
-- Python
-- pandas and NumPy
-- scikit-learn
-- Matplotlib / Seaborn (for exploratory plots, if used)
-- Jupyter Notebook
-
-## Responsible Use
-
-This project is an educational portfolio exercise. The findings should not be used to make real credit decisions. Strong predictive performance on this historical dataset does not demonstrate causal validity, fairness, regulatory compliance, or suitability for deployment.
-
-## Reproducibility Note
-
-The metrics above summarize the experiments performed during development. For a reproducible portfolio, keep the preprocessing and model pipelines in code, fix random seeds where appropriate, and record package versions and the exact evaluation procedure. Do not commit private or restricted data; check the dataset's terms and attribution requirements before redistributing it.
