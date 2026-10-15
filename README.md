@@ -78,13 +78,14 @@ be inferred from the feature labels alone.
 ## Tools and Technologies
 
 
-- **Python** — Data analysis and model development
-- **pandas and NumPy** — Data manipulation
-- **Matplotlib and Seaborn** — Data visualization
-- **scikit-learn** — Classification models and evaluation
-- **SciPy** — Statistical hypothesis testing
-- **SQL** — Data exploration and querying
-- **Git and GitHub** — Version control and project documentation
+- *Python* — Data analysis and machine learning
+- *Polars* — Data manipulation and transformation
+- *NumPy* — Numerical computing
+- *Matplotlib and Seaborn* — Data visualization
+- *scikit-learn* — Classification models and model evaluation
+- *SciPy* — Statistical hypothesis testing
+- *DuckDB* — SQL-based data exploration
+- *Git and GitHub* — Version control and project documentation
 
 
 ## Analytical Workflow
