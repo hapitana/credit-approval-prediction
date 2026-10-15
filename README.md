@@ -142,6 +142,63 @@ Permutation importance identified A9 as the most influential feature under the e
 
 This finding warrants additional investigation into feature meaning, potential information leakage, and whether the feature would be available at the appropriate point in an actual application process.
 
+## A9 Feature Ablation and Stability Analysis
+
+To investigate the contribution of feature A9, a feature ablation
+experiment was conducted using five-fold stratified cross-validation.
+
+Three Logistic Regression configurations were compared:
+
+1. All features (A1–A15)
+2. All features except A9
+3. A9 only
+
+The same cross-validation splits and evaluation metrics were used
+for all three configurations.
+
+### Cross-Validation Results
+
+| Feature Configuration | Mean ROC-AUC | Standard Deviation |
+|-----------------------|-------------:|-------------------:|
+| All features | 0.9336 | 0.0229 |
+| Without A9 | 0.8568 | 0.0250 |
+| A9 only | 0.8620 | 0.0386 |
+
+The model using all features achieved the highest mean ROC-AUC
+(0.9336).
+
+Removing A9 reduced mean ROC-AUC by 0.0768. The model using all
+features outperformed the model without A9 in all five folds,
+indicating that A9 provided a consistent predictive contribution
+under the evaluated cross-validation configuration.
+
+A model using A9 alone achieved a mean ROC-AUC of 0.8620.
+Although this result demonstrates substantial predictive
+information in a single feature, its fold-level performance
+was more variable than that of the other configurations.
+
+The mean ROC-AUC difference between the A9-only model and the
+model without A9 was small (0.0052). Therefore, the results do
+not establish that A9 alone is consistently superior to the
+remaining 14 features.
+
+### Interpretation and Limitations
+
+These findings demonstrate predictive association, not causation.
+The dataset represents a relatively small collection of historical
+credit applications, and the original features are anonymized.
+
+The substantive meaning of A9 must be established before drawing
+conclusions about its economic interpretation, fairness implications,
+or potential relationship to the historical credit decision process.
+
+Cross-validation results are internal estimates and do not establish
+generalization to other institutions, populations, or time periods.
+
+Further work should investigate the meaning of A9, evaluate the
+robustness of its contribution using additional validation strategies,
+and examine the implications of model errors in credit decision-making.
+
 ## Limitations and Responsible Use
 
 - **Anonymized features:** The real-world meanings of A1–A15 are not established by the feature labels.
