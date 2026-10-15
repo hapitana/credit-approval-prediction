@@ -7,7 +7,7 @@ from scipy.stats import chi2_contingency
 
 # 1. Load the data
 file_path = (
-    Path(_file_).resolve().parent.parent
+    Path(__file__).resolve().parent.parent
     / "data"
     / "raw"
     / "crx.data"
