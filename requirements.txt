@@ -1,5 +1,4 @@
 polars
-pandas
 numpy
 matplotlib
 seaborn
