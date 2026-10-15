@@ -199,6 +199,8 @@ Further work should investigate the meaning of A9, evaluate the
 robustness of its contribution using additional validation strategies,
 and examine the implications of model errors in credit decision-making.
 
+Anonymized Feature Limitation: The substantive meaning of feature A9 is not available in the dataset documentation examined. Although A9 exhibits a strong predictive association with credit approval decisions, its economic interpretation, potential relationship to the historical decision-making process, and implications for fairness cannot be established from the available information alone.
+
 ## Limitations and Responsible Use
 
 - **Anonymized features:** The real-world meanings of A1–A15 are not established by the feature labels.
