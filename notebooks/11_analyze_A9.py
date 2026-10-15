@@ -1,46 +1,73 @@
-import pandas as pd
+from pathlib import Path
+
+import polars as pl
+
+
+# 1. Load the data
+file_path = (
+    Path(_file_).resolve().parent.parent
+    / "data"
+    / "raw"
+    / "crx.data"
+)
 
 columns = [f"A{i}" for i in range(1, 17)]
 
-df = pd.read_csv(
-    "../data/raw/crx.data",
-    header=None,
-    names=columns,
-    na_values="?",
+df = pl.read_csv(
+    file_path,
+    has_header=False,
+    new_columns=columns,
+    null_values="?",
 )
 
-df = df[df["A16"].isin(["+", "-"])].copy()
+# 2. Keep only valid target labels
+df = df.filter(pl.col("A16").is_in(["+", "-"]))
 
-# Mark missing values in A9
-df["A9"] = df["A9"].fillna("MISSING")
+# 3. Mark missing values in A9
+df = df.with_columns(
+    pl.col("A9").fill_null("MISSING")
+)
 
-# Count applications by A9 category and approval outcome
-counts = pd.crosstab(
-    df["A9"],
-    df["A16"],
-    margins=True,
+# 4. Count applications by A9 category and approval outcome
+counts = (
+    df.group_by(["A9", "A16"])
+    .len(name="count")
+    .pivot(
+        on="A16",
+        index="A9",
+        values="count",
+    )
+    .fill_null(0)
+    .sort("A9")
 )
 
 print("Number of applications by A9 category and A16 outcome:")
 print(counts)
 
-# Calculate the approval rate for each A9 category
+# 5. Calculate approval rates by A9 category
 approval_rates = (
-    df.assign(approved=(df["A16"] == "+").astype(int))
-    .groupby("A9", dropna=False)
+    df.group_by("A9")
     .agg(
-        total=("approved", "size"),
-        approved=("approved", "sum"),
-        approval_rate=("approved", "mean"),
+        pl.len().alias("total"),
+        (pl.col("A16") == "+").sum().alias("approved"),
+        (pl.col("A16") == "+")
+        .mean()
+        .alias("approval_rate"),
     )
-    .sort_values("approval_rate", ascending=False)
+    .with_columns(
+        (pl.col("approval_rate") * 100)
+        .round(2)
+        .alias("approval_rate_pct")
+    )
+    .sort("approval_rate", descending=True)
 )
 
-approval_rates["approval_rate_pct"] = (
-    approval_rates["approval_rate"] * 100
-).round(2)
-
 print("\nApproval rates by A9 category")
-print(approval_rates[
-    ["total", "approved", "approval_rate_pct"]
-].to_string())
+print(
+    approval_rates.select([
+        "A9",
+        "total",
+        "approved",
+        "approval_rate_pct",
+    ])
+)
